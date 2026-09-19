@@ -56,80 +56,60 @@ const ReviewForm = ({ user, onClose }) => {
   };
 
   return (
-    <div className="w-full">
-      <h3 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-white text-center">
-        Share Your Experience
-      </h3>
-
-      <form onSubmit={handleSubmit}>
-        {/* Star Rating */}
-        <div className="mb-6">
-          <label className="block text-gray-700 dark:text-gray-300 mb-2">
-            How would you rate our service?
-          </label>
-          <div className="flex justify-center">
-            {[...Array(5)].map((_, index) => {
-              const ratingValue = index + 1;
-
-              return (
-                <label key={index} className="cursor-pointer">
-                  <input
-                    type="radio"
-                    name="rating"
-                    value={ratingValue}
-                    onClick={() => setRating(ratingValue)}
-                    className="hidden"
-                  />
-                  <FaStar
-                    size={32}
-                    className="mx-1 transition-colors duration-200"
-                    color={
-                      ratingValue <= (hover || rating) ? '#FFD700' : '#e4e5e9'
-                    }
-                    onMouseEnter={() => setHover(ratingValue)}
-                    onMouseLeave={() => setHover(0)}
-                  />
-                </label>
-              );
-            })}
-          </div>
-          <p className="text-center text-sm mt-2 text-gray-500 dark:text-gray-400">
-            {rating > 0
-              ? `You selected ${rating} star${rating > 1 ? 's' : ''}`
-              : 'Click to rate'}
-          </p>
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div>
+        <span className="field-label">Rating</span>
+        <div className="flex items-center gap-1">
+          {[1, 2, 3, 4, 5].map((value) => (
+            <button
+              type="button"
+              key={value}
+              onClick={() => setRating(value)}
+              onMouseEnter={() => setHover(value)}
+              onMouseLeave={() => setHover(0)}
+              className="rounded p-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+              aria-label={`${value} star${value > 1 ? 's' : ''}`}
+              aria-pressed={rating === value}
+            >
+              <FaStar
+                className={`h-5 w-5 transition-colors ${
+                  value <= (hover || rating)
+                    ? 'text-star'
+                    : 'text-gray-300 dark:text-gray-700'
+                }`}
+              />
+            </button>
+          ))}
+          <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+            {rating > 0 ? `${rating} of 5` : 'Click to rate'}
+          </span>
         </div>
+      </div>
 
-        {/* Review Message */}
-        <div className="mb-6">
-          <label
-            htmlFor="message"
-            className="block text-gray-700 dark:text-gray-300 mb-2"
-          >
-            Your Review
-          </label>
-          <textarea
-            id="message"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Tell us about your experience..."
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-[120px]"
-            required
-          />
-        </div>
+      <div>
+        <label htmlFor="review-message" className="field-label">
+          Your review
+        </label>
+        <textarea
+          id="review-message"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Tell us about your experience..."
+          rows="4"
+          className="field-area"
+          required
+        />
+      </div>
 
-        {/* Submit Button */}
-        <div className="flex justify-center">
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="px-6 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed w-full"
-          >
-            {isSubmitting ? 'Submitting...' : 'Submit Review'}
-          </button>
-        </div>
-      </form>
-    </div>
+      <div className="flex justify-end gap-2">
+        <button type="button" onClick={onClose} className="button-outline">
+          Cancel
+        </button>
+        <button type="submit" disabled={isSubmitting} className="button">
+          {isSubmitting ? 'Submitting...' : 'Submit review'}
+        </button>
+      </div>
+    </form>
   );
 };
 

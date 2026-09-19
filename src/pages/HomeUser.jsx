@@ -4,56 +4,39 @@ import { PageSEO } from '../components/ui/SEO';
 import { useReviews } from '../hooks/useReviews';
 import Review from '../components/Review';
 import ReviewForm from '../components/ReviewForm';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FiX } from 'react-icons/fi';
-import { MdOutlineReviews, MdScheduleSend } from 'react-icons/md';
-import { VscGitPullRequestNewChanges } from 'react-icons/vsc';
+import Modal from '../components/ui/Modal';
+import {
+  FiCalendar,
+  FiChevronRight,
+  FiPlusCircle,
+  FiStar,
+} from 'react-icons/fi';
 import { useAuthContext } from '../hooks/useAuthContext';
-import { useNotification } from '../context/NotificationContext';
+
+const rowClass =
+  'flex w-full items-center gap-3.5 bg-white px-5 py-4 text-left transition-colors hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800';
 
 export default function HomeUser() {
   const { user } = useAuthContext();
-  const { showInfo } = useNotification();
-  const { reviews: data, isPending, error } = useReviews();
+  const { reviews, isPending, error } = useReviews();
+  const [reviewOpen, setReviewOpen] = useState(false);
 
-  const [selectedId, setSelectedId] = useState(null);
+  const hasReviewed = !!reviews?.some((review) => review.userId === user?.uid);
 
-  //options items
-  const items = [
+  const actions = [
     {
-      id: 1,
-      title: 'See your requests',
-      subtitle: 'Quick view here your current schedule',
-      icon: (
-        <MdScheduleSend className="text-4xl text-primary-600 dark:text-primary-400" />
-      ),
-      link: '/schedule',
+      to: '/schedule',
+      icon: FiCalendar,
+      title: 'Your requests',
+      subtitle: 'Review, complete or cancel what you have booked',
     },
     {
-      id: 2,
-      title: 'Add request',
-      subtitle: 'Set up a new schedule request',
-      icon: (
-        <VscGitPullRequestNewChanges className="text-4xl text-primary-600 dark:text-primary-400" />
-      ),
-      link: '/request',
-    },
-    {
-      id: 3,
-      title: 'Give us a review',
-      subtitle: 'Write a review here',
-      icon: (
-        <MdOutlineReviews className="text-4xl text-primary-600 dark:text-primary-400" />
-      ),
+      to: '/request',
+      icon: FiPlusCircle,
+      title: 'Book an appointment',
+      subtitle: 'Pick a date and a 30-minute slot',
     },
   ];
-
-  const openCard = (item) => {
-    setSelectedId(item.id);
-    showInfo(`Opening ${item.title}`);
-  };
-
-  const hasReviewed = !!data?.some((review) => review.userId === user?.uid);
 
   return (
     <>
@@ -62,153 +45,99 @@ export default function HomeUser() {
         description="Manage your appointments and schedules"
       />
 
-      <div className="bg-gray-50 dark:bg-gray-900 sm:py-12 lg:py-20 pb-10">
-        <div className="flex flex-col justify-center items-center px-4 py-8 mx-auto max-w-screen-xl">
-          <div className="max-w-xl mb-10 text-center">
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-4">
-              Welcome,{' '}
-              <span className="text-primary-600 dark:text-primary-400">
-                {user.displayName}
+      <header className="mb-8">
+        <p className="eyebrow">Dashboard</p>
+        <h1 className="mt-2 text-2xl text-gray-900 dark:text-white">
+          Welcome back, {user.displayName}
+        </h1>
+        <p className="mt-1.5 text-sm text-gray-600 dark:text-gray-400">
+          Everything you have booked lives in one place.
+        </p>
+      </header>
+
+      <div className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-gray-200 bg-gray-200 dark:border-gray-800 dark:bg-gray-800">
+        {actions.map((action) => {
+          const Icon = action.icon;
+          return (
+            <Link key={action.to} to={action.to} className={rowClass}>
+              <Icon
+                className="h-4 w-4 shrink-0 text-primary-600 dark:text-primary-400"
+                aria-hidden="true"
+              />
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium text-gray-900 dark:text-white">
+                  {action.title}
+                </span>
+                <span className="block truncate text-xs text-gray-500 dark:text-gray-400">
+                  {action.subtitle}
+                </span>
               </span>
-            </h1>
-            <h2 className="max-w-lg mb-6 font-sans text-2xl font-bold leading-tight tracking-tight text-gray-800 dark:text-gray-200 sm:text-3xl md:mx-auto">
-              Manage your requests here.
-            </h2>
+              <FiChevronRight
+                className="h-4 w-4 shrink-0 text-gray-400"
+                aria-hidden="true"
+              />
+            </Link>
+          );
+        })}
 
-            <p className="text-base text-gray-700 dark:text-gray-300 md:text-lg">
-              You are about to get your schedules way more simplified.
-            </p>
-            <div>
-              <p className="inline-block px-3 py-px my-4 text-xs font-semibold tracking-wider text-gray-700 dark:text-gray-300 uppercase rounded-full bg-primary-100 dark:bg-primary-900">
-                Select an option to get started.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* CARDS */}
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="relative">
-            <div className="container relative m-auto px-6 text-gray-500 dark:text-gray-400 md:px-12">
-              <div className="grid gap-6 md:mx-auto md:w-8/12 lg:w-full lg:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 hover:cursor-pointer">
-                {items.map((item) => (
-                  <motion.div
-                    key={item.id}
-                    layoutId={`card-${item.id}`}
-                    onClick={() => openCard(item)}
-                    className={`flex flex-col items-center justify-center transform transition duration-500 hover:scale-105 
-                    group space-y-6 border border-gray-200 dark:border-gray-700 rounded-3xl bg-white dark:bg-gray-800
-                    px-8 py-12 text-center shadow-lg hover:shadow-xl ${
-                      selectedId === item.id ? 'z-10' : ''
-                    }`}
-                  >
-                    {item.icon}
-                    <h3 className="text-2xl font-semibold text-gray-800 dark:text-white">
-                      {item.title}
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      {item.subtitle}
-                    </p>
-                    {item.id === 3 && hasReviewed && (
-                      <span className="inline-block px-3 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full dark:bg-green-900 dark:text-green-300">
-                        Thank you for your review!
-                      </span>
-                    )}
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <AnimatePresence>
-            {selectedId && (
-              <motion.div
-                layoutId={`card-${selectedId}`}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 z-50 flex 
-                justify-center items-center"
-                onClick={() => setSelectedId(null)}
-              >
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.8, opacity: 0 }}
-                  onClick={(e) => e.stopPropagation()}
-                  className="bg-white dark:bg-gray-800 rounded-xl p-8 flex flex-col items-center 
-                  justify-center relative max-w-md w-full mx-4"
-                >
-                  {/* Content of the expanded card */}
-                  <h3 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-white">
-                    {items.find((item) => item.id === selectedId)?.title}
-                  </h3>
-
-                  {/* Show form for review, otherwise show regular content */}
-                  {selectedId === 3 ? (
-                    hasReviewed ? (
-                      <div className="text-center mb-6">
-                        <p className="text-gray-700 dark:text-gray-300 mb-4">
-                          You've already submitted a review. Thank you for your
-                          feedback!
-                        </p>
-                        <p className="text-gray-500 dark:text-gray-400 text-sm">
-                          If you'd like to update your review, please contact
-                          support.
-                        </p>
-                      </div>
-                    ) : (
-                      <ReviewForm
-                        user={user}
-                        onClose={() => setSelectedId(null)}
-                      />
-                    )
-                  ) : (
-                    <>
-                      <p className="text-center mb-6 text-gray-600 dark:text-gray-300">
-                        {items.find((item) => item.id === selectedId)?.subtitle}
-                      </p>
-                      <Link
-                        to={items.find((item) => item.id === selectedId)?.link}
-                        className="button w-full flex justify-center"
-                      >
-                        Proceed
-                      </Link>
-                    </>
-                  )}
-
-                  <button
-                    type="button"
-                    className="absolute top-4 right-4 p-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600"
-                    onClick={() => setSelectedId(null)}
-                    aria-label="Close modal"
-                  >
-                    <FiX className="w-5 h-5" />
-                  </button>
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+        <button
+          type="button"
+          onClick={() => setReviewOpen(true)}
+          className={rowClass}
+        >
+          <FiStar
+            className="h-4 w-4 shrink-0 text-primary-600 dark:text-primary-400"
+            aria-hidden="true"
+          />
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-medium text-gray-900 dark:text-white">
+              Leave a review
+            </span>
+            <span className="block truncate text-xs text-gray-500 dark:text-gray-400">
+              {hasReviewed
+                ? 'You already reviewed us — thank you'
+                : 'Tell others how it went'}
+            </span>
+          </span>
+          {hasReviewed && <span className="chip chip-success">Done</span>}
+          <FiChevronRight
+            className="h-4 w-4 shrink-0 text-gray-400"
+            aria-hidden="true"
+          />
+        </button>
       </div>
 
-      {/* REVIEWS */}
-      <div className="py-10 px-4 bg-white dark:bg-gray-800">
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">
-          Reviews
+      <section className="mt-12">
+        <p className="eyebrow">Reviews</p>
+        <h2 className="mt-2 text-xl text-gray-900 dark:text-white">
+          From the community
         </h2>
-        {error && (
-          <p className="text-accent-600 dark:text-accent-400 text-center">
-            {error}
-          </p>
-        )}
+
         {isPending && (
-          <p className="text-primary-600 dark:text-primary-400 text-center">
+          <p className="py-8 text-sm text-gray-500 dark:text-gray-400">
             Loading...
           </p>
         )}
-        {data && <Review reviews={data} />}
-      </div>
+        {error && (
+          <p className="py-8 text-sm text-accent-600 dark:text-accent-400">
+            {error}
+          </p>
+        )}
+        {reviews && <Review reviews={reviews} />}
+      </section>
+
+      {reviewOpen && (
+        <Modal title="Leave a review" onClose={() => setReviewOpen(false)}>
+          {hasReviewed ? (
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              You have already submitted a review. Contact support if you want
+              to update it.
+            </p>
+          ) : (
+            <ReviewForm user={user} onClose={() => setReviewOpen(false)} />
+          )}
+        </Modal>
+      )}
     </>
   );
 }

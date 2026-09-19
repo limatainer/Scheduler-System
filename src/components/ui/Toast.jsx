@@ -11,29 +11,28 @@ import {
 // Icon, background and text colour per toast type
 const STYLES = {
   success: {
-    icon: <FiCheckCircle className="h-5 w-5 text-green-500" />,
-    bg: 'bg-green-50 dark:bg-green-900/20',
-    text: 'text-green-800 dark:text-green-200',
+    icon: (
+      <FiCheckCircle className="h-4 w-4 text-success-600 dark:text-success-400" />
+    ),
+    variant: 'alert-success',
   },
   error: {
-    icon: <FiAlertCircle className="h-5 w-5 text-red-500" />,
-    bg: 'bg-red-50 dark:bg-red-900/20',
-    text: 'text-red-800 dark:text-red-200',
+    icon: (
+      <FiAlertCircle className="h-4 w-4 text-danger-600 dark:text-danger-400" />
+    ),
+    variant: 'alert-danger',
   },
   'theme-light': {
-    icon: <FiSun className="h-5 w-5 text-orange-500" />,
-    bg: 'bg-orange-50 dark:bg-orange-900/20',
-    text: 'text-orange-800 dark:text-orange-200',
+    icon: <FiSun className="h-4 w-4 text-warning-600 dark:text-warning-400" />,
+    variant: 'alert-warning',
   },
   'theme-dark': {
-    icon: <FiMoon className="h-5 w-5 text-purple-500" />,
-    bg: 'bg-purple-50 dark:bg-purple-900/20',
-    text: 'text-purple-800 dark:text-purple-200',
+    icon: <FiMoon className="h-4 w-4 text-primary-600 dark:text-primary-400" />,
+    variant: 'alert-info',
   },
   info: {
-    icon: <FiInfo className="h-5 w-5 text-blue-500" />,
-    bg: 'bg-blue-50 dark:bg-blue-900/20',
-    text: 'text-blue-800 dark:text-blue-200',
+    icon: <FiInfo className="h-4 w-4 text-primary-600 dark:text-primary-400" />,
+    variant: 'alert-info',
   },
 };
 
@@ -52,27 +51,27 @@ const Toast = ({ message, type = 'info', duration = 3000, onClose }) => {
     return () => clearTimeout(timer);
   }, [duration, onClose]);
 
-  const { icon, bg, text } = STYLES[type] || STYLES.info;
+  const { icon, variant } = STYLES[type] || STYLES.info;
 
   return (
     <div
-      className={`fixed bottom-4 right-4 z-50 flex w-72 transform items-center rounded-lg p-4 shadow-lg transition-all duration-300 ${
+      className={`alert ${variant} fixed bottom-4 right-4 z-50 w-72 items-center transition-all duration-200 ${
         isVisible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
-      } ${bg} ${text}`}
+      }`}
       role="alert"
     >
-      <div className="mr-3 flex-shrink-0">{icon}</div>
-      <div className="mr-2 flex-1 text-sm font-medium">{message}</div>
+      <span className="shrink-0">{icon}</span>
+      <span className="flex-1 font-medium">{message}</span>
       <button
         type="button"
-        className="inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-lg bg-transparent text-sm text-current hover:bg-gray-200 hover:text-gray-900"
+        className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded text-current opacity-60 transition-opacity hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
         onClick={() => {
           setIsVisible(false);
           setTimeout(() => onClose?.(), 300);
         }}
         aria-label="Close"
       >
-        <FiX className="h-4 w-4" />
+        <FiX className="h-3.5 w-3.5" />
       </button>
     </div>
   );

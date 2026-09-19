@@ -4,19 +4,38 @@ import { useAuthContext } from '../../hooks/useAuthContext';
 import ThemeToggle from '../ui/ThemeToggle';
 import {
   FiCalendar,
+  FiGrid,
   FiHome,
-  FiLogIn,
+  FiLifeBuoy,
   FiLogOut,
-  FiPlusCircle,
-  FiUser,
   FiMenu,
+  FiPlusCircle,
   FiX,
 } from 'react-icons/fi';
+
+const APP_NAV = [
+  { to: '/homeuser', label: 'Home', icon: FiHome },
+  { to: '/schedule', label: 'Requests', icon: FiCalendar },
+  { to: '/request', label: 'Book', icon: FiPlusCircle },
+  { to: '/services', label: 'Services', icon: FiGrid },
+];
+
+const Brand = () => (
+  <Link
+    to="/"
+    className="flex items-center gap-2 text-sm font-semibold tracking-tight text-gray-900 dark:text-white"
+  >
+    <span className="flex h-6 w-6 items-center justify-center rounded bg-primary-600 text-2xs font-bold text-white">
+      S
+    </span>
+    Scheduler
+  </Link>
+);
 
 const Layout = ({ children }) => {
   const { user, logout } = useAuthContext();
   const location = useLocation();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -26,154 +45,153 @@ const Layout = ({ children }) => {
     }
   };
 
-  // Navigation items that change based on auth state
-  const navItems = user
-    ? [
-        {
-          to: '/homeuser',
-          label: 'Home',
-          icon: <FiHome className="h-5 w-5" />,
-        },
-        {
-          to: '/schedule',
-          label: 'Schedules',
-          icon: <FiCalendar className="h-5 w-5" />,
-        },
-        {
-          to: '/request',
-          label: 'Request',
-          icon: <FiPlusCircle className="h-5 w-5" />,
-        },
-      ]
-    : [
-        { to: '/', label: 'Home', icon: <FiHome className="h-5 w-5" /> },
-        { to: '/login', label: 'Login', icon: <FiLogIn className="h-5 w-5" /> },
-        {
-          to: '/signup',
-          label: 'Signup',
-          icon: <FiUser className="h-5 w-5" />,
-        },
-      ];
+  const isActive = (to) =>
+    location.pathname === to || location.pathname.startsWith(`${to}/`);
+
+  const navLink = (item, onClick) => {
+    const Icon = item.icon;
+    return (
+      <Link
+        key={item.to}
+        to={item.to}
+        onClick={onClick}
+        className={`flex h-8 items-center gap-2.5 rounded-md px-2.5 text-sm transition-colors ${
+          isActive(item.to)
+            ? 'bg-gray-100 font-medium text-gray-900 dark:bg-gray-800 dark:text-white'
+            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'
+        }`}
+      >
+        <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+        {item.label}
+      </Link>
+    );
+  };
+
+  if (!user) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <header className="sticky top-0 z-30 border-b border-gray-200 bg-white/90 backdrop-blur dark:border-gray-800 dark:bg-gray-950/90">
+          <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4 md:px-8">
+            <Brand />
+            <nav className="flex items-center gap-1">
+              <Link
+                to="/services"
+                className="button-ghost hidden sm:inline-flex"
+              >
+                Services
+              </Link>
+              <Link to="/login" className="button-ghost">
+                Sign in
+              </Link>
+              <Link to="/signup" className="button">
+                Get started
+              </Link>
+              <ThemeToggle />
+            </nav>
+          </div>
+        </header>
+
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 md:px-8">
+          {children}
+        </main>
+
+        <footer className="border-t border-gray-200 py-6 dark:border-gray-800">
+          <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 text-xs text-gray-500 sm:flex-row sm:items-center sm:justify-between md:px-8 dark:text-gray-500">
+            <span>© {new Date().getFullYear()} Scheduler</span>
+            <Link
+              to="/services"
+              className="hover:text-gray-900 dark:hover:text-gray-200"
+            >
+              Browse services
+            </Link>
+          </div>
+        </footer>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-white shadow-md dark:bg-gray-800">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link to="/" className="flex items-center space-x-2">
-            <span className="text-xl font-display font-bold text-primary-600 dark:text-primary-400">
-              Scheduler
-            </span>
-          </Link>
+    <div className="flex min-h-screen">
+      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-gray-200 bg-white px-3 py-4 md:flex dark:border-gray-800 dark:bg-gray-900">
+        <div className="px-2.5 pb-4">
+          <Brand />
+        </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:block">
-            <ul className="flex items-center space-x-6">
-              {navItems.map((item) => (
-                <li key={item.to}>
-                  <Link
-                    to={item.to}
-                    className={`flex items-center space-x-1 font-medium transition-colors ${
-                      location.pathname === item.to
-                        ? 'text-primary-600 dark:text-primary-400'
-                        : 'text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400'
-                    }`}
-                  >
-                    {item.icon}
-                    <span>{item.label}</span>
-                  </Link>
-                </li>
-              ))}
+        <nav className="flex flex-1 flex-col gap-0.5">
+          {APP_NAV.map((item) => navLink(item))}
+        </nav>
 
-              {user && (
-                <li>
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="flex items-center space-x-1 font-medium text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400"
-                  >
-                    <FiLogOut className="h-5 w-5" />
-                    <span>Logout</span>
-                  </button>
-                </li>
-              )}
-
-              <li>
-                <ThemeToggle />
-              </li>
-            </ul>
-          </nav>
-
-          {/* Mobile menu button */}
-          <div className="flex items-center space-x-2 md:hidden">
-            <ThemeToggle />
+        <div className="flex flex-col gap-0.5 border-t border-gray-200 pt-3 dark:border-gray-800">
+          <div className="truncate px-2.5 pb-2 text-xs text-gray-500 dark:text-gray-500">
+            {user.email}
+          </div>
+          <div className="flex items-center justify-between px-0.5">
             <button
               type="button"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
-              aria-label="Toggle mobile menu"
+              onClick={handleLogout}
+              className="button-ghost"
             >
-              {mobileMenuOpen ? (
-                <FiX className="h-6 w-6" />
-              ) : (
-                <FiMenu className="h-6 w-6" />
-              )}
+              <FiLogOut className="h-4 w-4" aria-hidden="true" />
+              Sign out
             </button>
+            <ThemeToggle />
           </div>
         </div>
+      </aside>
 
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <nav className="md:hidden">
-            <ul className="border-t border-gray-200 px-4 py-3 dark:border-gray-700">
-              {navItems.map((item) => (
-                <li key={item.to} className="py-2">
-                  <Link
-                    to={item.to}
-                    className={`flex items-center space-x-3 rounded-lg px-3 py-2 transition-colors ${
-                      location.pathname === item.to
-                        ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400'
-                        : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
-                    }`}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {item.icon}
-                    <span>{item.label}</span>
-                  </Link>
-                </li>
-              ))}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-30 border-b border-gray-200 bg-white/90 backdrop-blur md:hidden dark:border-gray-800 dark:bg-gray-900/90">
+          <div className="flex h-14 items-center justify-between px-4">
+            <Brand />
+            <div className="flex items-center gap-1">
+              <ThemeToggle />
+              <button
+                type="button"
+                onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                className="button-ghost"
+                aria-label="Toggle navigation"
+                aria-expanded={mobileNavOpen}
+              >
+                {mobileNavOpen ? (
+                  <FiX className="h-5 w-5" />
+                ) : (
+                  <FiMenu className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+          </div>
 
-              {user && (
-                <li className="py-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      handleLogout();
-                      setMobileMenuOpen(false);
-                    }}
-                    className="flex w-full items-center space-x-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                  >
-                    <FiLogOut className="h-5 w-5" />
-                    <span>Logout</span>
-                  </button>
-                </li>
+          {mobileNavOpen && (
+            <nav className="flex flex-col gap-0.5 border-t border-gray-200 px-3 py-3 dark:border-gray-800">
+              {APP_NAV.map((item) =>
+                navLink(item, () => setMobileNavOpen(false)),
               )}
-            </ul>
-          </nav>
-        )}
-      </header>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileNavOpen(false);
+                  handleLogout();
+                }}
+                className="flex h-8 items-center gap-2.5 rounded-md px-2.5 text-sm text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+              >
+                <FiLogOut className="h-4 w-4" aria-hidden="true" />
+                Sign out
+              </button>
+            </nav>
+          )}
+        </header>
 
-      {/* Main content */}
-      <main className="container mx-auto flex-grow px-4 py-8">{children}</main>
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 md:px-8 md:py-8">
+          {children}
+        </main>
 
-      {/* Footer */}
-      <footer className="bg-white py-6 shadow-inner dark:bg-gray-800">
-        <div className="container mx-auto px-4 text-center text-gray-600 dark:text-gray-400">
-          <p>
-            © {new Date().getFullYear()} Scheduler App. All rights reserved.
-          </p>
-        </div>
-      </footer>
+        <footer className="border-t border-gray-200 px-4 py-4 text-xs text-gray-500 md:px-8 dark:border-gray-800 dark:text-gray-500">
+          <div className="mx-auto flex w-full max-w-6xl items-center gap-2">
+            <FiLifeBuoy className="h-3.5 w-3.5" aria-hidden="true" />
+            Need help? Open the support panel on the Requests page.
+          </div>
+        </footer>
+      </div>
     </div>
   );
 };

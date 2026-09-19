@@ -1,46 +1,61 @@
+import { useState } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { projectFirestore } from '../firebase/config';
 import { deleteSchedule } from '../firebase/schedule';
-import { GoDot } from 'react-icons/go';
 import { CiTrash } from 'react-icons/ci';
 import {
-  FiClock,
   FiCheck,
+  FiClock,
   FiEye,
-  FiCalendar,
   FiToggleLeft,
   FiToggleRight,
-  FiX,
 } from 'react-icons/fi';
-import { useState } from 'react';
+import Modal from './ui/Modal';
 import { useNotification } from '../context/NotificationContext';
 import { isDone, mostRecent, scheduleDate, toMillis } from '../utils/schedule';
 
 const COMPLETED = {
   status: 'Completed',
-  icon: <FiCheck className="text-green-500" />,
-  color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+  icon: <FiCheck className="h-3 w-3" />,
+  color: 'chip-success',
 };
 
 const PENDING = {
   status: 'Pending',
-  icon: <FiClock className="text-amber-500" />,
-  color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
+  icon: <FiClock className="h-3 w-3" />,
+  color: 'chip-warning',
 };
+
+const rowDate = (schedule) =>
+  scheduleDate(schedule).toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+
+const fullDate = (schedule) =>
+  scheduleDate(schedule).toLocaleString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
 
 export default function SchedulesView({ schedules }) {
   const { showSuccess, showError } = useNotification();
-  const [selectedSchedule, setSelectedSchedule] = useState(null);
+  const [selected, setSelected] = useState(null);
 
-  const mostRecentSchedule = mostRecent(schedules);
+  const newest = mostRecent(schedules);
 
-  // DELETE A SCHEDULE
   const deleteRequest = async (id) => {
     if (!window.confirm('Delete this request? This cannot be undone.')) return;
 
     try {
       await deleteSchedule(id);
-      setSelectedSchedule(null);
+      setSelected(null);
       showSuccess('Request has been deleted.');
     } catch (error) {
       console.error('Error deleting request:', error);
@@ -48,27 +63,22 @@ export default function SchedulesView({ schedules }) {
     }
   };
 
-  // Toggle completed status
-  const toggleCompletedStatus = async (schedule) => {
-    const newStatus = !schedule.completed;
+  const toggleCompleted = async (schedule) => {
+    const completed = !schedule.completed;
 
     try {
       await updateDoc(doc(projectFirestore, 'schedule', schedule.id), {
-        completed: newStatus,
+        completed,
       });
 
       showSuccess(
-        newStatus
+        completed
           ? 'Appointment marked as completed.'
           : 'Appointment marked as pending.',
       );
 
-      // Update the selected schedule if it's currently viewed
-      if (selectedSchedule && selectedSchedule.id === schedule.id) {
-        setSelectedSchedule({
-          ...selectedSchedule,
-          completed: newStatus,
-        });
+      if (selected && selected.id === schedule.id) {
+        setSelected({ ...selected, completed });
       }
     } catch (error) {
       console.error('Error updating status:', error);
@@ -76,27 +86,56 @@ export default function SchedulesView({ schedules }) {
     }
   };
 
-  // Get status based on date and completed field
   const getStatus = (schedule) => (isDone(schedule) ? COMPLETED : PENDING);
+  const isPast = (schedule) => scheduleDate(schedule) < new Date();
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 m-4 p-4">
+      <ul className="divide-y divide-gray-200 overflow-hidden rounded-lg border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
         {schedules.map((schedule) => {
           const { status, icon, color } = getStatus(schedule);
 
           return (
-            <div
+            <li
               key={schedule.id}
-              className="relative bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 border border-gray-200 dark:border-gray-700 transition-all hover:shadow-lg"
+              className="group flex items-center gap-3 bg-white px-4 py-3 transition-colors hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800/60"
             >
-              <div className="absolute flex items-center gap-2 top-4 right-4">
-                {/* Toggle completed status button (only if date has passed) */}
-                {scheduleDate(schedule) < new Date() && (
+              <span
+                className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                  isDone(schedule) ? 'bg-success-500' : 'bg-warning-500'
+                }`}
+                aria-hidden="true"
+              />
+
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="truncate text-sm font-medium text-gray-900 dark:text-white">
+                    {schedule.name}
+                  </span>
+                  {schedule.id === newest.id && (
+                    <span className="chip chip-info">New</span>
+                  )}
+                </div>
+                <p className="truncate text-xs text-gray-500 dark:text-gray-400">
+                  {schedule.message}
+                </p>
+              </div>
+
+              <span className="hidden shrink-0 text-xs tabular-nums text-gray-500 sm:block dark:text-gray-400">
+                {rowDate(schedule)}
+              </span>
+
+              <span className={`chip hidden shrink-0 md:inline-flex ${color}`}>
+                {icon}
+                {status}
+              </span>
+
+              <div className="flex shrink-0 items-center gap-0.5">
+                {isPast(schedule) && (
                   <button
                     type="button"
-                    onClick={() => toggleCompletedStatus(schedule)}
-                    className="p-2 rounded-full text-gray-600 hover:text-primary-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-primary-400 dark:hover:bg-gray-700"
+                    onClick={() => toggleCompleted(schedule)}
+                    className="button-ghost px-1.5"
                     title={
                       schedule.completed
                         ? 'Mark as pending'
@@ -104,217 +143,115 @@ export default function SchedulesView({ schedules }) {
                     }
                   >
                     {schedule.completed ? (
-                      <FiToggleRight className="text-xl text-green-500" />
+                      <FiToggleRight className="h-4 w-4 text-success-500" />
                     ) : (
-                      <FiToggleLeft className="text-xl text-amber-500" />
+                      <FiToggleLeft className="h-4 w-4 text-warning-500" />
                     )}
                   </button>
                 )}
 
-                {/* View details button */}
                 <button
                   type="button"
-                  onClick={() => setSelectedSchedule(schedule)}
-                  className="p-2 rounded-full text-gray-600 hover:text-primary-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-primary-400 dark:hover:bg-gray-700"
+                  onClick={() => setSelected(schedule)}
+                  className="button-ghost px-1.5"
                   title="View details"
                 >
-                  <FiEye className="text-xl" />
+                  <FiEye className="h-4 w-4" />
                 </button>
 
-                {/* Delete button */}
                 <button
                   type="button"
                   onClick={() => deleteRequest(schedule.id)}
-                  className="p-2 rounded-full text-gray-600 hover:text-red-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-red-400 dark:hover:bg-gray-700"
+                  className="button-ghost px-1.5 hover:text-danger-600 dark:hover:text-danger-400"
                   title="Delete request"
                 >
-                  <CiTrash className="text-xl" />
+                  <CiTrash className="h-4 w-4" />
                 </button>
-
-                {/* New request indicator */}
-                {schedule.id === mostRecentSchedule.id && (
-                  <GoDot className="text-xl absolute -top-1 -right-1 animate-ping text-accent-600 dark:text-accent-400" />
-                )}
               </div>
-
-              <div className="mt-4 mb-6">
-                <h3 className="text-xl font-semibold mb-2 pr-16 text-primary-600 dark:text-primary-400">
-                  {schedule.name}
-                </h3>
-                <div className="flex items-center gap-2 mb-2">
-                  <FiCalendar className="text-gray-500 dark:text-gray-400" />
-                  <span className="text-gray-700 dark:text-gray-300">
-                    {scheduleDate(schedule).toLocaleString('en-US', {
-                      weekday: 'short',
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                      hour: 'numeric',
-                      minute: '2-digit',
-                    })}
-                  </span>
-                </div>
-                <div className="flex items-center mt-4">
-                  <span
-                    className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm ${color}`}
-                  >
-                    {icon}
-                    {status}
-                  </span>
-                </div>
-              </div>
-
-              <div className="text-gray-700 dark:text-gray-300 mt-4 border-t pt-4 border-gray-200 dark:border-gray-700">
-                <p className="line-clamp-2">
-                  {schedule.message.length > 100
-                    ? `${schedule.message.substring(0, 100)}...`
-                    : schedule.message}
-                </p>
-              </div>
-            </div>
+            </li>
           );
         })}
-      </div>
+      </ul>
 
-      {/* Details Modal */}
-      {selectedSchedule && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 z-50 flex justify-center items-center p-4"
-          onClick={() => setSelectedSchedule(null)}
-        >
-          <div
-            className="bg-white dark:bg-gray-800 rounded-xl p-8 max-w-lg w-full mx-4 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex justify-between items-start mb-4">
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-                Request Details
-              </h2>
-              <button
-                type="button"
-                onClick={() => setSelectedSchedule(null)}
-                className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                aria-label="Close"
-              >
-                <FiX className="h-6 w-6" />
-              </button>
+      {selected && (
+        <Modal title="Request details" onClose={() => setSelected(null)}>
+          <dl className="space-y-4 text-sm">
+            <div>
+              <dt className="field-label">Requester</dt>
+              <dd className="font-medium text-gray-900 dark:text-white">
+                {selected.name}
+              </dd>
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <span className="block text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Requester
-                </span>
-                <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {selectedSchedule.name}
-                </p>
-              </div>
-
-              <div>
-                <span className="block text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Date & Time
-                </span>
-                <p className="text-lg text-gray-900 dark:text-white">
-                  {scheduleDate(selectedSchedule).toLocaleString('en-US', {
-                    weekday: 'long',
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                  })}
-                </p>
-              </div>
-
-              <div>
-                <span className="block text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Status
-                </span>
-                <div className="mt-2">
-                  {scheduleDate(selectedSchedule) < new Date() ? (
-                    <div className="flex items-center">
-                      <div
-                        className={`mr-3 flex items-center gap-1 px-3 py-1 rounded-full text-sm ${
-                          getStatus(selectedSchedule).color
-                        }`}
-                      >
-                        {getStatus(selectedSchedule).icon}
-                        {getStatus(selectedSchedule).status}
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => toggleCompletedStatus(selectedSchedule)}
-                        className="flex items-center gap-2 px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-full text-gray-700 dark:text-gray-300"
-                      >
-                        {selectedSchedule.completed ? (
-                          <>
-                            <FiToggleRight className="text-green-500" />
-                            <span>Mark as pending</span>
-                          </>
-                        ) : (
-                          <>
-                            <FiToggleLeft className="text-amber-500" />
-                            <span>Mark as completed</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  ) : (
-                    <div
-                      className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm ${
-                        getStatus(selectedSchedule).color
-                      } max-w-max`}
-                    >
-                      {getStatus(selectedSchedule).icon}
-                      {getStatus(selectedSchedule).status}
-                      <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                        (Appointment is in the future)
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <span className="block text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Message
-                </span>
-                <p className="text-gray-700 dark:text-gray-300 mt-1 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                  {selectedSchedule.message}
-                </p>
-              </div>
-
-              <div>
-                <span className="block text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Created
-                </span>
-                <p className="text-gray-700 dark:text-gray-300">
-                  {new Date(
-                    toMillis(selectedSchedule.createdAt),
-                  ).toLocaleString()}
-                </p>
-              </div>
+            <div>
+              <dt className="field-label">Date and time</dt>
+              <dd className="text-gray-900 dark:text-gray-100">
+                {fullDate(selected)}
+              </dd>
             </div>
 
-            <div className="mt-8 flex justify-end gap-4">
-              <button
-                type="button"
-                onClick={() => setSelectedSchedule(null)}
-                className="button-outline"
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                onClick={() => deleteRequest(selectedSchedule.id)}
-                className="button-accent"
-              >
-                Delete Request
-              </button>
+            <div>
+              <dt className="field-label">Status</dt>
+              <dd className="flex flex-wrap items-center gap-2">
+                <span className={`chip ${getStatus(selected).color}`}>
+                  {getStatus(selected).icon}
+                  {getStatus(selected).status}
+                </span>
+                {isPast(selected) ? (
+                  <button
+                    type="button"
+                    onClick={() => toggleCompleted(selected)}
+                    className="button-ghost"
+                  >
+                    {selected.completed ? (
+                      <FiToggleRight className="h-4 w-4 text-success-500" />
+                    ) : (
+                      <FiToggleLeft className="h-4 w-4 text-warning-500" />
+                    )}
+                    {selected.completed
+                      ? 'Mark as pending'
+                      : 'Mark as completed'}
+                  </button>
+                ) : (
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    Appointment is in the future
+                  </span>
+                )}
+              </dd>
             </div>
+
+            <div>
+              <dt className="field-label">Message</dt>
+              <dd className="rounded-md border border-gray-200 bg-gray-50 p-3 text-gray-700 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300">
+                {selected.message}
+              </dd>
+            </div>
+
+            <div>
+              <dt className="field-label">Created</dt>
+              <dd className="text-gray-500 dark:text-gray-400">
+                {new Date(toMillis(selected.createdAt)).toLocaleString()}
+              </dd>
+            </div>
+          </dl>
+
+          <div className="mt-6 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setSelected(null)}
+              className="button-outline"
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              onClick={() => deleteRequest(selected.id)}
+              className="button-accent"
+            >
+              Delete request
+            </button>
           </div>
-        </div>
+        </Modal>
       )}
     </>
   );

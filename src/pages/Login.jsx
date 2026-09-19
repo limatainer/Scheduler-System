@@ -53,100 +53,85 @@ const Login = () => {
         description="Sign in to your Scheduler account to manage your appointments"
       />
 
-      <div className="flex min-h-[80vh] flex-col items-center justify-center px-4">
-        <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg dark:bg-gray-800">
-          <div className="mb-6 text-center">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Sign in
-            </h1>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">
-              Sign in to your account
-            </p>
+      <div className="mx-auto flex w-full max-w-sm flex-col justify-center py-16 md:py-24">
+        <p className="eyebrow">Account</p>
+        <h1 className="mt-2 text-2xl text-gray-900 dark:text-white">Sign in</h1>
+        <p className="mt-1.5 text-sm text-gray-600 dark:text-gray-400">
+          Use the email you signed up with.
+        </p>
+
+        {error && (
+          <div className="alert alert-danger mt-5">
+            <FiAlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <div>
+            <label htmlFor="email" className="field-label">
+              Email
+            </label>
+            <div className="relative">
+              <FiMail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                type="email"
+                id="email"
+                className="field pl-9"
+                placeholder="name@example.com"
+                value={email}
+                autoComplete="email"
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
           </div>
 
-          {error && (
-            <div className="mb-4 flex items-center rounded-lg bg-red-50 p-4 text-sm text-red-800 dark:bg-red-900/30 dark:text-red-200">
-              <FiAlertCircle className="mr-2 h-5 w-5 flex-shrink-0" />
-              <span>{error}</span>
+          <div>
+            <label htmlFor="password" className="field-label">
+              Password
+            </label>
+            <div className="relative">
+              <FiLock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                className="field pl-9 pr-9"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                required
+              />
+              <button
+                type="button"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 transition-colors hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 dark:hover:text-gray-200"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? (
+                  <FiEyeOff className="h-4 w-4" />
+                ) : (
+                  <FiEye className="h-4 w-4" />
+                )}
+              </button>
             </div>
-          )}
+          </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label
-                htmlFor="email"
-                className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-              >
-                Email
-              </label>
-              <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <FiMail className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                </div>
-                <input
-                  type="email"
-                  id="email"
-                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
-                  placeholder="name@example.com"
-                  value={email}
-                  autoComplete="email"
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-            <div>
-              <label
-                htmlFor="password"
-                className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-              >
-                Password
-              </label>
-              <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <FiLock className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                </div>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 pr-10 text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="current-password"
-                  required
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <FiEyeOff className="h-5 w-5" />
-                  ) : (
-                    <FiEye className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
-            </div>
-            <button
-              type="submit"
-              className="w-full rounded-lg bg-primary-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:bg-primary-500 dark:hover:bg-primary-600 dark:focus:ring-primary-800"
-              disabled={loading}
-            >
-              {loading ? 'Signing in...' : 'Sign in'}
-            </button>
-            <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-              Don't have an account?{' '}
-              <Link
-                to="/signup"
-                className="font-medium text-primary-600 hover:underline dark:text-primary-500"
-              >
-                Sign up
-              </Link>
-            </p>
-          </form>
-        </div>
+          <button type="submit" className="button w-full" disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign in'}
+          </button>
+        </form>
+
+        <p className="mt-6 border-t border-gray-200 pt-5 text-sm text-gray-600 dark:border-gray-800 dark:text-gray-400">
+          No account?{' '}
+          <Link
+            to="/signup"
+            className="font-medium text-primary-600 hover:underline dark:text-primary-400"
+          >
+            Create one
+          </Link>
+        </p>
       </div>
     </>
   );
