@@ -1,41 +1,29 @@
 import { useState } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import {
-  FiCalendar,
-  FiClock,
-  FiDollarSign,
-  FiStar,
   FiArrowRight,
-  FiChevronLeft,
-  FiChevronDown,
-  FiChevronUp,
+  FiCalendar,
   FiCheck,
+  FiChevronDown,
+  FiChevronLeft,
+  FiChevronUp,
+  FiStar,
   FiUser,
 } from 'react-icons/fi';
 import { PageSEO } from '../components/ui/SEO';
-import { motion } from 'framer-motion';
-// Import the services data
 import { getServicesArray, getServiceById } from '../data/servicesData';
 
-// Main component for single service page
 const ServiceDetails = () => {
   const { serviceId } = useParams();
   const [activeFaq, setActiveFaq] = useState(null);
 
-  // Get service data using the helper function
   const service = getServiceById(serviceId);
 
-  // Make sure we have valid service data
   if (!serviceId || !service) {
     return <Navigate to="/services" />;
   }
 
   const ServiceIcon = service.icon;
-
-  // Toggle FAQ
-  const toggleFaq = (index) => {
-    setActiveFaq(activeFaq === index ? null : index);
-  };
 
   return (
     <>
@@ -44,260 +32,214 @@ const ServiceDetails = () => {
         description={service.description}
       />
 
-      <div className="container mx-auto px-4 py-12">
-        {/* Back to all services */}
-        <Link
-          to="/services"
-          className="inline-flex items-center mb-8 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
-        >
-          <FiChevronLeft className="mr-1" />
-          Back to all services
+      <div className="py-10 md:py-14">
+        <Link to="/services" className="button-ghost -ml-2.5 mb-6">
+          <FiChevronLeft className="h-4 w-4" aria-hidden="true" />
+          All services
         </Link>
 
-        {/* Hero section */}
-        <div className="mb-16">
-          <div className="flex flex-col items-center text-center mb-8">
-            <div className="mb-6 p-4 rounded-full bg-primary-100 dark:bg-primary-900/30">
-              <ServiceIcon
-                className="h-16 w-16 text-primary-600 dark:text-primary-400"
-                aria-hidden="true"
-              />
-            </div>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-              {service.title}
-            </h1>
-            <p className="max-w-3xl text-xl text-gray-600 dark:text-gray-300">
-              {service.longDescription}
-            </p>
-          </div>
-
-          <div className="mt-10">
-            <Link
-              to="/request"
-              className="mx-auto flex w-full sm:w-auto justify-center items-center rounded-lg bg-primary-600 px-6 py-3 text-center font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:bg-primary-500 dark:hover:bg-primary-600 dark:focus:ring-primary-800"
-            >
+        <header className="border-b border-gray-200 pb-10 dark:border-gray-800">
+          <ServiceIcon
+            className="h-5 w-5 text-primary-600 dark:text-primary-400"
+            aria-hidden="true"
+          />
+          <h1 className="mt-4 max-w-2xl text-3xl leading-tight text-gray-900 md:text-4xl dark:text-white">
+            {service.title}
+          </h1>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-gray-600 dark:text-gray-400">
+            {service.longDescription}
+          </p>
+          <div className="mt-6 flex flex-wrap items-center gap-2">
+            <Link to="/request" className="button">
+              <FiCalendar className="h-4 w-4" aria-hidden="true" />
               Book this service
-              <FiCalendar className="ml-2" />
             </Link>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              From {service.pricing[0].price}
+            </span>
           </div>
-        </div>
+        </header>
 
-        {/* Benefits */}
-        <div className="mb-16">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-8">
-            Benefits
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {service.benefits.map((benefit, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-                className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex items-start"
+        <section className="border-b border-gray-200 py-10 dark:border-gray-800">
+          <p className="eyebrow">Benefits</p>
+          <ul className="mt-5 grid grid-cols-1 gap-x-8 gap-y-2.5 sm:grid-cols-2">
+            {service.benefits.map((benefit) => (
+              <li
+                key={benefit}
+                className="flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300"
               >
-                <div className="mr-4 mt-1 p-2 bg-primary-100 dark:bg-primary-900/30 rounded-full">
-                  <FiStar className="text-primary-600 dark:text-primary-400" />
-                </div>
-                <p className="text-gray-700 dark:text-gray-300">{benefit}</p>
-              </motion.div>
+                <FiCheck
+                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary-600 dark:text-primary-400"
+                  aria-hidden="true"
+                />
+                {benefit}
+              </li>
             ))}
-          </div>
-        </div>
+          </ul>
+        </section>
 
-        {/* Pricing */}
-        <div className="mb-16">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-8">
-            Pricing
-          </h2>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-700">
-                  <tr>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                    >
-                      Service
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                    >
-                      Price
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                    >
-                      Duration
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                    ></th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  {service.pricing.map((item, index) => (
-                    <tr
-                      key={index}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                        {item.name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                        <span className="flex items-center">
-                          <FiDollarSign className="mr-1 text-primary-600 dark:text-primary-400" />
-                          {item.price.replace('$', '')}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                        <span className="flex items-center">
-                          <FiClock className="mr-1 text-primary-600 dark:text-primary-400" />
-                          {item.duration}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <Link
-                          to="/request"
-                          className="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300"
-                        >
-                          Book
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        {/* Professionals */}
-        <div className="mb-16">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-8">
-            Our Professionals
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {service.professionals.map((pro, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-6 flex flex-col items-center text-center"
-              >
-                <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full mb-4 flex items-center justify-center">
-                  <FiUser className="h-12 w-12 text-gray-400 dark:text-gray-500" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">
-                  {pro.name}
-                </h3>
-                <p className="text-primary-600 dark:text-primary-400 mb-3">
-                  {pro.specialty}
-                </p>
-                <div className="flex items-center">
-                  <span className="text-yellow-500 mr-1">
-                    <FiStar className="fill-current" />
-                  </span>
-                  <span className="text-gray-700 dark:text-gray-300">
-                    {pro.rating} / 5
-                  </span>
-                </div>
-                <Link
-                  to="/request"
-                  className="mt-6 inline-flex items-center px-4 py-2 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-400 dark:hover:bg-primary-900/50"
+        <section className="border-b border-gray-200 py-10 dark:border-gray-800">
+          <p className="eyebrow">Pricing</p>
+          <table className="mt-5 w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-200 dark:border-gray-800">
+                <th
+                  scope="col"
+                  className="py-2 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-500"
                 >
-                  Book with {pro.name.split(' ')[0]}
-                  <FiArrowRight className="ml-1" />
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </div>
+                  Service
+                </th>
+                <th
+                  scope="col"
+                  className="py-2 text-right text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-500"
+                >
+                  Duration
+                </th>
+                <th
+                  scope="col"
+                  className="py-2 text-right text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-500"
+                >
+                  Price
+                </th>
+                <th scope="col" className="py-2" />
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
+              {service.pricing.map((item) => (
+                <tr key={item.name}>
+                  <td className="py-3 pr-4 font-medium text-gray-900 dark:text-white">
+                    {item.name}
+                  </td>
+                  <td className="py-3 text-right tabular-nums text-gray-500 dark:text-gray-400">
+                    {item.duration}
+                  </td>
+                  <td className="py-3 text-right tabular-nums text-gray-900 dark:text-gray-100">
+                    {item.price}
+                  </td>
+                  <td className="py-3 pl-4 text-right">
+                    <Link
+                      to="/request"
+                      className="text-sm font-medium text-primary-600 hover:underline dark:text-primary-400"
+                    >
+                      Book
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
 
-        {/* FAQs */}
-        <div className="mb-16">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-8">
-            Frequently Asked Questions
-          </h2>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
-            {service.faqs.map((faq, index) => (
-              <div key={index} className="p-6">
+        <section className="border-b border-gray-200 py-10 dark:border-gray-800">
+          <p className="eyebrow">Professionals</p>
+          <ul className="mt-5 grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-gray-200 bg-gray-200 sm:grid-cols-3 dark:border-gray-800 dark:bg-gray-800">
+            {service.professionals.map((pro) => (
+              <li
+                key={pro.name}
+                className="flex flex-col bg-white p-4 dark:bg-gray-900"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                    <FiUser
+                      className="h-4 w-4 text-gray-400"
+                      aria-hidden="true"
+                    />
+                  </span>
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-medium text-gray-900 dark:text-white">
+                      {pro.name}
+                    </div>
+                    <div className="truncate text-xs text-gray-500 dark:text-gray-400">
+                      {pro.specialty}
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                    <FiStar
+                      className="h-3 w-3 fill-current text-star"
+                      aria-hidden="true"
+                    />
+                    {pro.rating}
+                  </span>
+                  <Link
+                    to="/request"
+                    className="text-xs font-medium text-primary-600 hover:underline dark:text-primary-400"
+                  >
+                    Book
+                  </Link>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="border-b border-gray-200 py-10 dark:border-gray-800">
+          <p className="eyebrow">FAQs</p>
+          <div className="mt-5 divide-y divide-gray-200 border-y border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+            {service.faqs.map((faq) => (
+              <div key={faq.question}>
                 <button
                   type="button"
-                  onClick={() => toggleFaq(index)}
-                  className="flex w-full justify-between items-center text-left"
+                  onClick={() =>
+                    setActiveFaq(
+                      activeFaq === faq.question ? null : faq.question,
+                    )
+                  }
+                  className="flex w-full items-center justify-between gap-4 py-3.5 text-left"
+                  aria-expanded={activeFaq === faq.question}
                 >
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">
                     {faq.question}
-                  </h3>
-                  <span className="ml-6 flex-shrink-0 text-primary-600 dark:text-primary-400">
-                    {activeFaq === index ? (
-                      <FiChevronUp aria-hidden="true" />
-                    ) : (
-                      <FiChevronDown aria-hidden="true" />
-                    )}
                   </span>
+                  {activeFaq === faq.question ? (
+                    <FiChevronUp className="h-4 w-4 shrink-0 text-gray-400" />
+                  ) : (
+                    <FiChevronDown className="h-4 w-4 shrink-0 text-gray-400" />
+                  )}
                 </button>
-                {activeFaq === index && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    transition={{ duration: 0.3 }}
-                    className="mt-4 text-gray-600 dark:text-gray-300"
-                  >
-                    <p>{faq.answer}</p>
-                  </motion.div>
+                {activeFaq === faq.question && (
+                  <p className="pb-4 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                    {faq.answer}
+                  </p>
                 )}
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* CTA */}
-        <div className="mt-12 bg-primary-50 dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4">
-            Ready to experience our {service.title.toLowerCase()}?
-          </h2>
-          <p className="max-w-2xl mx-auto text-gray-600 dark:text-gray-300 mb-6">
-            Book your appointment today and take the first step toward a better
-            you.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link
-              to="/request"
-              className="inline-flex justify-center items-center rounded-lg bg-primary-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:bg-primary-500 dark:hover:bg-primary-600 dark:focus:ring-primary-800"
-            >
-              Book Now
-              <FiCalendar className="ml-2" />
-            </Link>
-            <Link
-              to="/services"
-              className="inline-flex justify-center items-center rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700"
-            >
-              Explore Other Services
-            </Link>
+        <section className="py-10">
+          <div className="surface flex flex-col items-start gap-5 p-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-lg text-gray-900 dark:text-white">
+                Ready to book?
+              </h2>
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                Pick a date and a slot that fits your week.
+              </p>
+            </div>
+            <div className="flex shrink-0 gap-2">
+              <Link to="/request" className="button">
+                Book now
+              </Link>
+              <Link to="/services" className="button-outline">
+                Other services
+              </Link>
+            </div>
           </div>
-        </div>
+        </section>
       </div>
     </>
   );
 };
 
-// Main component for services listing page
 const Services = () => {
   const { serviceId } = useParams();
 
-  // If we have a specific service in the URL, show the detailed view
   if (serviceId) {
     return <ServiceDetails />;
   }
 
-  // Otherwise, show all services using the helper function
   const allServices = getServicesArray();
 
   return (
@@ -307,97 +249,90 @@ const Services = () => {
         description="Explore our range of professional services including health, style, barber, and exercise services."
       />
 
-      <div className="container mx-auto px-4 py-12">
-        {/* Hero section */}
-        <div className="text-center mb-16">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-            Our Services
+      <div className="py-10 md:py-14">
+        <header className="mb-8">
+          <p className="eyebrow">Catalog</p>
+          <h1 className="mt-2 text-2xl text-gray-900 md:text-3xl dark:text-white">
+            Services
           </h1>
-          <p className="max-w-3xl mx-auto text-xl text-gray-600 dark:text-gray-300">
-            Discover our wide range of professional services designed to meet
-            your needs
+          <p className="mt-1.5 max-w-xl text-sm text-gray-600 dark:text-gray-400">
+            Four service lines, each with its own professionals, pricing and
+            availability.
           </p>
-        </div>
+        </header>
 
-        {/* Services grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-          {allServices.map((service, index) => {
+        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-gray-200 bg-gray-200 md:grid-cols-2 dark:border-gray-800 dark:bg-gray-800">
+          {allServices.map((service) => {
             const ServiceIcon = service.icon;
 
             return (
-              <motion.div
+              <article
                 key={service.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-6 flex flex-col h-full"
+                className="flex flex-col bg-white p-5 dark:bg-gray-900"
               >
-                <div className="flex items-center mb-4">
-                  <div className="mr-4 p-3 rounded-full bg-primary-100 dark:bg-primary-900/30">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-2.5">
                     <ServiceIcon
-                      className="h-6 w-6 text-primary-600 dark:text-primary-400"
+                      className="h-4 w-4 text-primary-600 dark:text-primary-400"
                       aria-hidden="true"
                     />
+                    <h2 className="text-base font-semibold text-gray-900 dark:text-white">
+                      {service.title}
+                    </h2>
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {service.title}
-                  </h2>
+                  <span className="shrink-0 text-xs text-gray-500 dark:text-gray-400">
+                    from {service.pricing[0].price}
+                  </span>
                 </div>
 
-                <p className="text-gray-600 dark:text-gray-300 mb-6 flex-grow">
+                <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                   {service.description}
                 </p>
 
-                <div className="mt-4 grid grid-cols-2 gap-4 mb-6">
-                  {service.benefits.slice(0, 4).map((benefit, idx) => (
-                    <div key={idx} className="flex items-start">
-                      <FiCheck className="mt-1 mr-2 text-green-500" />
-                      <span className="text-sm text-gray-600 dark:text-gray-300">
-                        {benefit}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-auto">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Starting at
-                      </p>
-                      <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                        {service.pricing[0].price}
-                      </p>
-                    </div>
-                    <Link
-                      to={`/services/${service.id}`}
-                      className="inline-flex items-center px-4 py-2 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-400 dark:hover:bg-primary-900/50"
+                <ul className="mt-4 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                  {service.benefits.slice(0, 4).map((benefit) => (
+                    <li
+                      key={benefit}
+                      className="flex items-start gap-2 text-xs text-gray-600 dark:text-gray-400"
                     >
-                      Learn more
-                      <FiArrowRight className="ml-1" />
-                    </Link>
-                  </div>
+                      <FiCheck
+                        className="mt-0.5 h-3 w-3 shrink-0 text-primary-600 dark:text-primary-400"
+                        aria-hidden="true"
+                      />
+                      {benefit}
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-5 flex items-center justify-between border-t border-gray-100 pt-4 dark:border-gray-800">
+                  <Link
+                    to={`/services/${service.id}`}
+                    className="inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:underline dark:text-primary-400"
+                  >
+                    Details
+                    <FiArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  </Link>
+                  <Link to="/request" className="button-outline button-sm">
+                    Book
+                  </Link>
                 </div>
-              </motion.div>
+              </article>
             );
           })}
         </div>
 
-        {/* CTA Section */}
-        <div className="bg-primary-50 dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4">
-            Ready to book a service?
-          </h2>
-          <p className="max-w-2xl mx-auto text-gray-600 dark:text-gray-300 mb-6">
-            Choose from our range of professional services and book your
-            appointment today.
-          </p>
-          <Link
-            to="/request"
-            className="inline-flex justify-center items-center rounded-lg bg-primary-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:bg-primary-500 dark:hover:bg-primary-600 dark:focus:ring-primary-800"
-          >
-            Book an Appointment
-            <FiCalendar className="ml-2" />
+        <div className="surface mt-10 flex flex-col items-start gap-5 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-lg text-gray-900 dark:text-white">
+              Ready to book a service?
+            </h2>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              Slots run every 30 minutes between 7:00 and 20:00.
+            </p>
+          </div>
+          <Link to="/request" className="button shrink-0">
+            <FiCalendar className="h-4 w-4" aria-hidden="true" />
+            Book an appointment
           </Link>
         </div>
       </div>

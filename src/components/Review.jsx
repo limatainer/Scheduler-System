@@ -1,188 +1,148 @@
 import { useState, useEffect } from 'react';
-import {
-  FaStar,
-  FaRegStar,
-  FaChevronLeft,
-  FaChevronRight,
-} from 'react-icons/fa';
+import { FaStar, FaRegStar } from 'react-icons/fa';
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
-export default function Review({ reviews }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [autoplay, setAutoplay] = useState(true);
-  const reviewsPerPage = 3;
-  const totalPages = Math.ceil(reviews.length / reviewsPerPage);
-  const currentPage = Math.floor(currentIndex / reviewsPerPage);
+const PER_PAGE = 3;
 
-  const formatDate = (timestamp) =>
-    timestamp
-      ? timestamp.toDate().toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-        })
-      : 'No date';
+const formatDate = (timestamp) =>
+  timestamp
+    ? timestamp.toDate().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
+    : 'No date';
 
-  // Create star rating component
-  const StarRating = ({ rating }) => {
-    const stars = [];
-    const ratingValue = Number(rating) || 0;
+const StarRating = ({ rating }) => {
+  const value = Number(rating) || 0;
 
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        i <= ratingValue ? (
-          <FaStar key={i} className="text-yellow-500" />
+  return (
+    <div className="flex gap-0.5" role="img" aria-label={`${value} out of 5`}>
+      {[1, 2, 3, 4, 5].map((star) =>
+        star <= value ? (
+          <FaStar key={star} className="h-3 w-3 text-star" />
         ) : (
-          <FaRegStar key={i} className="text-gray-300" />
+          <FaRegStar
+            key={star}
+            className="h-3 w-3 text-gray-300 dark:text-gray-700"
+          />
         ),
-      );
-    }
-
-    return <div className="flex gap-1">{stars}</div>;
-  };
-
-  // Handle navigation
-  const goToNext = () => {
-    setCurrentIndex(
-      (prevIndex) => (prevIndex + reviewsPerPage) % reviews.length,
-    );
-  };
-
-  const goToPrev = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex - reviewsPerPage < 0
-        ? Math.max(
-            0,
-            reviews.length -
-              (reviews.length % reviewsPerPage || reviewsPerPage),
-          )
-        : prevIndex - reviewsPerPage,
-    );
-  };
-
-  const pagination = (
-    <div className="flex items-center justify-center mt-8 gap-2">
-      {Array.from({ length: totalPages }, (_, i) => (
-        <button
-          type="button"
-          key={i}
-          onClick={() => {
-            setAutoplay(false);
-            setCurrentIndex(i * reviewsPerPage);
-          }}
-          className={`w-3 h-3 rounded-full transition-all ${
-            currentPage === i ? 'bg-primary-600 w-6' : 'bg-gray-300'
-          }`}
-          aria-label={`Go to page ${i + 1}`}
-        />
-      ))}
+      )}
     </div>
   );
+};
 
-  // Auto-rotate effect
+export default function Review({ reviews }) {
+  const [page, setPage] = useState(0);
+  const [autoplay, setAutoplay] = useState(true);
+
+  const totalPages = Math.max(1, Math.ceil(reviews.length / PER_PAGE));
+
   useEffect(() => {
-    if (!autoplay) return;
+    if (!autoplay || totalPages < 2) return;
 
-    const interval = setInterval(() => {
-      setCurrentIndex(
-        (prevIndex) => (prevIndex + reviewsPerPage) % reviews.length,
-      );
-    }, 6000);
+    const interval = setInterval(
+      () => setPage((current) => (current + 1) % totalPages),
+      6000,
+    );
 
     return () => clearInterval(interval);
-  }, [autoplay, reviews.length]);
+  }, [autoplay, totalPages]);
 
   if (!reviews || reviews.length === 0) {
     return (
-      <div className="py-12 text-center text-gray-500 dark:text-gray-400">
-        No reviews available at the moment.
-      </div>
+      <p className="py-8 text-sm text-gray-500 dark:text-gray-400">
+        No reviews yet.
+      </p>
     );
   }
 
-  // Get current reviews to display
-  const currentReviews = reviews.slice(
-    currentIndex,
-    Math.min(currentIndex + reviewsPerPage, reviews.length),
+  const goTo = (next) => {
+    setAutoplay(false);
+    setPage((next + totalPages) % totalPages);
+  };
+
+  const pageKeys = Array.from(
+    { length: totalPages },
+    (_, index) => reviews[index * PER_PAGE].id,
   );
 
-  return (
-    <section className="py-12 relative">
-      <div className="w-full max-w-7xl px-4 md:px-5 lg:px-6 mx-auto">
-        <h2 className="font-bold text-3xl md:text-4xl text-gray-900 dark:text-white text-center mb-8">
-          What Our Clients Say
-        </h2>
+  const visible = reviews.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE);
 
-        {/* Reviews Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {currentReviews.map((review, idx) => (
-            <div
-              key={review.id || idx}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-all duration-300 hover:shadow-lg border border-gray-100 dark:border-gray-700"
-              onClick={() => setAutoplay(false)}
-            >
-              <div className="flex items-start mb-4">
-                <img
-                  src={
-                    review.photoURL ||
-                    `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                      review.name || 'User',
-                    )}&background=random`
-                  }
-                  alt={`${review.name || 'User'}'s profile`}
-                  className="w-12 h-12 rounded-full object-cover mr-4"
-                />
-                <div>
-                  <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
-                    {review.name || 'Anonymous User'}
-                  </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {formatDate(review.createdAt)}
-                  </p>
+  return (
+    <div className="mt-6">
+      <div className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-gray-200 bg-gray-200 md:grid-cols-3 dark:border-gray-800 dark:bg-gray-800">
+        {visible.map((review) => (
+          <figure
+            key={review.id}
+            className="flex flex-col bg-white p-5 dark:bg-gray-900"
+          >
+            <StarRating rating={review.star} />
+            <blockquote className="mt-3 flex-1 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+              {review.message || 'No review content.'}
+            </blockquote>
+            <figcaption className="mt-4 flex items-center gap-2.5 border-t border-gray-100 pt-4 dark:border-gray-800">
+              <img
+                src={
+                  review.photoURL ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    review.name || 'User',
+                  )}&background=random`
+                }
+                alt=""
+                className="h-7 w-7 rounded-full object-cover"
+              />
+              <div className="min-w-0">
+                <div className="truncate text-sm font-medium text-gray-900 dark:text-white">
+                  {review.name || 'Anonymous'}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-500">
+                  {formatDate(review.createdAt)}
                 </div>
               </div>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
 
-              <div className="mb-3">
-                <StarRating rating={review.star} />
-              </div>
+      {totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-between">
+          <div className="flex gap-1.5">
+            {pageKeys.map((key, index) => (
+              <button
+                type="button"
+                key={key}
+                onClick={() => goTo(index)}
+                className={`h-1.5 rounded-full transition-all ${
+                  page === index
+                    ? 'w-5 bg-primary-600 dark:bg-primary-400'
+                    : 'w-1.5 bg-gray-300 dark:bg-gray-700'
+                }`}
+                aria-label={`Go to page ${index + 1}`}
+              />
+            ))}
+          </div>
 
-              <p className="text-gray-700 dark:text-gray-300 line-clamp-4 mb-2">
-                {review.message || 'No review content.'}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        {/* Navigation Controls */}
-        {reviews.length > reviewsPerPage && (
-          <div className="flex justify-between items-center mt-8">
+          <div className="flex gap-1">
             <button
               type="button"
-              onClick={() => {
-                setAutoplay(false);
-                goToPrev();
-              }}
-              className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              onClick={() => goTo(page - 1)}
+              className="button-ghost px-1.5"
               aria-label="Previous reviews"
             >
-              <FaChevronLeft />
+              <FiChevronLeft className="h-4 w-4" />
             </button>
-
-            {pagination}
-
             <button
               type="button"
-              onClick={() => {
-                setAutoplay(false);
-                goToNext();
-              }}
-              className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              onClick={() => goTo(page + 1)}
+              className="button-ghost px-1.5"
               aria-label="Next reviews"
             >
-              <FaChevronRight />
+              <FiChevronRight className="h-4 w-4" />
             </button>
           </div>
-        )}
-      </div>
-    </section>
+        </div>
+      )}
+    </div>
   );
 }

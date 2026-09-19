@@ -227,47 +227,50 @@ export default function Requester() {
     }
   };
 
-  // Weekday headers for calendar
   const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  // Different views based on current step
+  const steps = [
+    { id: 1, label: 'Date' },
+    { id: 2, label: 'Time' },
+    { id: 3, label: 'Confirm' },
+  ];
+
   const renderDateSelection = () => (
-    <div className="p-6">
-      {/* Month navigation */}
-      <div className="flex items-center justify-between mb-6">
-        <button
-          type="button"
-          onClick={goToPreviousMonth}
-          className="p-2 rounded-full text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-          aria-label="Previous month"
-        >
-          <FiArrowLeft />
-        </button>
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+    <div className="p-4 md:p-5">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-gray-900 dark:text-white">
           {currentMonth.toLocaleDateString(undefined, {
             month: 'long',
             year: 'numeric',
           })}
         </h2>
-        <button
-          type="button"
-          onClick={goToNextMonth}
-          className="p-2 rounded-full text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-          aria-label="Next month"
-        >
-          <FiArrowRight />
-        </button>
+        <div className="flex gap-0.5">
+          <button
+            type="button"
+            onClick={goToPreviousMonth}
+            className="button-ghost px-1.5"
+            aria-label="Previous month"
+          >
+            <FiArrowLeft className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={goToNextMonth}
+            className="button-ghost px-1.5"
+            aria-label="Next month"
+          >
+            <FiArrowRight className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
-      {/* Calendar grid */}
       <div className="grid grid-cols-7 gap-1">
-        {/* Weekday headers */}
         {weekdays.map((day) => (
           <div
             key={day}
-            className="text-center text-sm font-medium text-gray-500 dark:text-gray-400 py-2"
+            className="pb-1 text-center text-2xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-600"
           >
-            {day}
+            {day.slice(0, 1)}
           </div>
         ))}
 
@@ -276,6 +279,7 @@ export default function Requester() {
           const available = hasAvailableSlots(date);
           const past = isPastDay(date);
           const today = isToday(date);
+          const disabled = !available || past;
 
           return (
             <button
@@ -287,107 +291,80 @@ export default function Requester() {
                   : undefined
               }
               onClick={() => available && handleDateSelect(date)}
-              disabled={!available || past}
-              className={`
-                relative p-2 w-full rounded-md transition-colors
-                ${
-                  isSelected
-                    ? 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300'
-                    : ''
-                }
-                ${
-                  today && !isSelected
-                    ? 'border border-primary-400 dark:border-primary-600'
-                    : ''
-                }
-                ${
-                  past
-                    ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
-                    : ''
-                }
-                ${
-                  !past && available
-                    ? 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                    : ''
-                }
-                ${
-                  !available && !past
-                    ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
-                    : ''
-                }
-              `}
+              disabled={disabled}
+              className={`relative flex h-9 items-center justify-center rounded-md text-sm tabular-nums transition-colors ${
+                isSelected
+                  ? 'bg-primary-600 font-medium text-white'
+                  : disabled
+                    ? 'cursor-not-allowed text-gray-300 dark:text-gray-700'
+                    : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+              }`}
             >
-              <div className="text-sm">{date.getDate()}</div>
-              {today && (
-                <div className="text-xs mt-1 text-primary-600 dark:text-primary-400">
-                  Today
-                </div>
-              )}
-              {isSelected && (
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary-500 dark:bg-primary-600"></div>
+              {date.getDate()}
+              {today && !isSelected && (
+                <span className="absolute bottom-1 h-1 w-1 rounded-full bg-primary-600 dark:bg-primary-400" />
               )}
             </button>
           );
         })}
       </div>
 
-      <div className="mt-6 text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-        <p className="flex items-center">
-          <FiInfo className="mr-2" /> Select a date to view available time
-          slots. Gray dates are either unavailable or in the past.
-        </p>
-      </div>
+      <p className="mt-4 flex items-start gap-2 border-t border-gray-200 pt-4 text-xs text-gray-500 dark:border-gray-800 dark:text-gray-400">
+        <FiInfo className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+        Greyed dates are fully booked or in the past.
+      </p>
     </div>
   );
 
   const renderTimeSelection = () => (
-    <div className="p-6">
-      <div className="mb-6">
+    <div className="p-4 md:p-5">
+      <div className="mb-4">
         <button
           type="button"
           onClick={() => setCurrentStep(1)}
-          className="text-primary-600 dark:text-primary-400 flex items-center text-sm"
+          className="button-ghost -ml-2.5"
         >
-          <FiArrowLeft className="mr-1" /> Back to calendar
+          <FiArrowLeft className="h-4 w-4" aria-hidden="true" />
+          Back
         </button>
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-4">
-          Select a time on {fullDate(selectedDate)}
+        <h2 className="mt-2 text-sm font-semibold text-gray-900 dark:text-white">
+          {fullDate(selectedDate)}
         </h2>
       </div>
 
       {availableTimeSlots.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
           {availableTimeSlots.map((slot) => (
             <button
               type="button"
               key={slot.time.toISOString()}
               onClick={() => !slot.isBusy && handleTimeSelect(slot.time)}
               disabled={slot.isBusy}
-              className={`
-                p-3 text-center rounded-lg transition-colors
-                ${
-                  slot.isBusy
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600'
-                    : 'bg-white border border-gray-200 hover:border-primary-500 hover:text-primary-600 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-primary-500 dark:text-gray-300 dark:hover:text-primary-400'
-                }
-              `}
+              className={`h-9 rounded-md border text-sm tabular-nums transition-colors ${
+                slot.isBusy
+                  ? 'cursor-not-allowed border-gray-200 bg-gray-50 text-gray-300 line-through dark:border-gray-800 dark:bg-gray-950 dark:text-gray-700'
+                  : 'border-gray-200 bg-white text-gray-700 hover:border-primary-500 hover:text-primary-600 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-primary-500 dark:hover:text-primary-400'
+              }`}
             >
               {clockTime(slot.time)}
             </button>
           ))}
         </div>
       ) : (
-        <div className="text-center py-12">
-          <FiClock className="mx-auto text-4xl text-gray-400 dark:text-gray-600 mb-3" />
-          <p className="text-gray-500 dark:text-gray-400">
-            No available time slots for this date.
+        <div className="py-12 text-center">
+          <FiClock
+            className="mx-auto h-5 w-5 text-gray-400"
+            aria-hidden="true"
+          />
+          <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+            No slots left on this date.
           </p>
           <button
             type="button"
             onClick={() => setCurrentStep(1)}
-            className="mt-4 text-primary-600 dark:text-primary-400 underline"
+            className="button-outline mt-4"
           >
-            Select another date
+            Pick another date
           </button>
         </div>
       )}
@@ -395,94 +372,65 @@ export default function Requester() {
   );
 
   const renderConfirmation = () => (
-    <div className="p-6">
-      <div className="mb-6">
+    <div className="p-4 md:p-5">
+      <div className="mb-4">
         <button
           type="button"
           onClick={() => setCurrentStep(2)}
-          className="text-primary-600 dark:text-primary-400 flex items-center text-sm"
+          className="button-ghost -ml-2.5"
         >
-          <FiArrowLeft className="mr-1" /> Back to time selection
+          <FiArrowLeft className="h-4 w-4" aria-hidden="true" />
+          Back
         </button>
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-4">
-          Confirm your appointment
-        </h2>
       </div>
 
-      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-6">
-        <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-2">
-          Appointment details
-        </h3>
-        <div className="flex items-start mb-3">
-          <FiCalendar className="text-primary-600 dark:text-primary-400 mt-1 mr-3" />
-          <div>
-            <div className="font-medium text-gray-800 dark:text-gray-200">
-              Date
-            </div>
-            <div className="text-gray-600 dark:text-gray-400">
-              {fullDate(selectedDate)}
-            </div>
-          </div>
+      <dl className="mb-5 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-gray-200 bg-gray-200 dark:border-gray-800 dark:bg-gray-800">
+        <div className="bg-white px-4 py-3 dark:bg-gray-900">
+          <dt className="field-label">
+            <FiCalendar className="mr-1 inline h-3 w-3" aria-hidden="true" />
+            Date
+          </dt>
+          <dd className="text-sm font-medium text-gray-900 dark:text-white">
+            {fullDate(selectedDate)}
+          </dd>
         </div>
-        <div className="flex items-start">
-          <FiClock className="text-primary-600 dark:text-primary-400 mt-1 mr-3" />
-          <div>
-            <div className="font-medium text-gray-800 dark:text-gray-200">
-              Time
-            </div>
-            <div className="text-gray-600 dark:text-gray-400">
-              {clockTime(selectedTime)}
-            </div>
-          </div>
+        <div className="bg-white px-4 py-3 dark:bg-gray-900">
+          <dt className="field-label">
+            <FiClock className="mr-1 inline h-3 w-3" aria-hidden="true" />
+            Time
+          </dt>
+          <dd className="text-sm font-medium tabular-nums text-gray-900 dark:text-white">
+            {clockTime(selectedTime)}
+          </dd>
         </div>
-      </div>
+      </dl>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label
-            htmlFor="message"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            Send a personalized message:
-          </label>
-          <div className="relative">
-            <div className="absolute top-3 left-3 flex items-start pointer-events-none">
-              <FiMessageSquare className="text-gray-400" />
-            </div>
-            <textarea
-              id="message"
-              name="message"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              rows="4"
-              className="block w-full pl-10 border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800"
-              placeholder="Please share any details about your appointment..."
-              required
+          <label htmlFor="message" className="field-label">
+            <FiMessageSquare
+              className="mr-1 inline h-3 w-3"
+              aria-hidden="true"
             />
-          </div>
+            Message
+          </label>
+          <textarea
+            id="message"
+            name="message"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            rows="4"
+            className="field-area"
+            placeholder="Share any details about your appointment..."
+            required
+          />
         </div>
 
-        {isSubmitting && (
-          <div className="text-primary-600 dark:text-primary-400">
-            Submitting request...
-          </div>
-        )}
+        {submitError && <p className="alert alert-danger">{submitError}</p>}
 
-        {submitError && (
-          <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg text-red-600 dark:text-red-400">
-            {submitError}
-          </div>
-        )}
-
-        <div className="pt-4">
-          <button
-            type="submit"
-            className="w-full py-3 px-4 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:bg-primary-500 dark:hover:bg-primary-600"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Submitting...' : 'Confirm Appointment'}
-          </button>
-        </div>
+        <button type="submit" className="button w-full" disabled={isSubmitting}>
+          {isSubmitting ? 'Submitting...' : 'Confirm appointment'}
+        </button>
       </form>
     </div>
   );
@@ -494,55 +442,45 @@ export default function Requester() {
         description="Schedule a new appointment by selecting from available dates and times."
       />
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-          {/* Header */}
-          <div className="bg-primary-600 dark:bg-primary-700 p-6 text-white">
-            <h1 className="text-2xl font-bold flex items-center">
-              <FiCalendar className="mr-2" /> Schedule Your Appointment
-            </h1>
-            <p className="mt-1 opacity-80 text-sm">
-              Select a date and time that works for you
-            </p>
+      <header className="mb-6">
+        <p className="eyebrow">Booking</p>
+        <h1 className="mt-2 text-2xl text-gray-900 dark:text-white">
+          Schedule an appointment
+        </h1>
+        <p className="mt-1.5 text-sm text-gray-600 dark:text-gray-400">
+          Slots run every 30 minutes between 7:00 and 20:00.
+        </p>
+      </header>
+
+      <div className="mx-auto max-w-3xl">
+        <div className="surface overflow-hidden">
+          <div className="flex border-b border-gray-200 dark:border-gray-800">
+            {steps.map((step) => (
+              <div
+                key={step.id}
+                className={`flex flex-1 items-center justify-center gap-2 py-2.5 text-xs font-medium ${
+                  currentStep === step.id
+                    ? 'text-gray-900 dark:text-white'
+                    : 'text-gray-400 dark:text-gray-600'
+                }`}
+              >
+                <span
+                  className={`flex h-5 w-5 items-center justify-center rounded text-2xs ${
+                    currentStep >= step.id
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-600'
+                  }`}
+                >
+                  {step.id}
+                </span>
+                {step.label}
+              </div>
+            ))}
           </div>
 
-          {/* Progress indicator */}
-          <div className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-            <div className="flex">
-              <div
-                className={`flex-1 py-3 px-4 text-center border-b-2 text-sm font-medium ${
-                  currentStep >= 1
-                    ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                    : 'border-transparent text-gray-500'
-                }`}
-              >
-                1. Select Date
-              </div>
-              <div
-                className={`flex-1 py-3 px-4 text-center border-b-2 text-sm font-medium ${
-                  currentStep >= 2
-                    ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                    : 'border-transparent text-gray-500'
-                }`}
-              >
-                2. Select Time
-              </div>
-              <div
-                className={`flex-1 py-3 px-4 text-center border-b-2 text-sm font-medium ${
-                  currentStep >= 3
-                    ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                    : 'border-transparent text-gray-500'
-                }`}
-              >
-                3. Confirm
-              </div>
-            </div>
-          </div>
-
-          {/* Content */}
           {isLoading ? (
-            <div className="flex justify-center items-center py-24">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 dark:border-primary-400"></div>
+            <div className="flex items-center justify-center py-20">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-200 border-t-primary-600 dark:border-gray-800 dark:border-t-primary-400" />
             </div>
           ) : (
             <>

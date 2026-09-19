@@ -20,13 +20,13 @@ const ThemeToggle = ({ className = '' }) => {
     <button
       type="button"
       onClick={handleToggle}
-      className={`rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-yellow-300 dark:hover:bg-gray-700 dark:focus:ring-gray-700 ${className}`}
+      className={`inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 ${className}`}
       aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
     >
       {darkMode ? (
-        <FiSun className="h-5 w-5" />
+        <FiSun className="h-4 w-4" />
       ) : (
-        <FiMoon className="h-5 w-5" />
+        <FiMoon className="h-4 w-4" />
       )}
     </button>
   );

@@ -79,174 +79,143 @@ const Signup = () => {
         description="Create your Scheduler account to start managing your appointments"
       />
 
-      <div className="flex min-h-[80vh] flex-col items-center justify-center px-4">
-        <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg dark:bg-gray-800">
-          <div className="mb-6 text-center">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Sign up
-            </h1>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">
-              Create a new account
+      <div className="mx-auto flex w-full max-w-sm flex-col justify-center py-16 md:py-24">
+        <p className="eyebrow">Account</p>
+        <h1 className="mt-2 text-2xl text-gray-900 dark:text-white">
+          Create account
+        </h1>
+        <p className="mt-1.5 text-sm text-gray-600 dark:text-gray-400">
+          Takes less than a minute.
+        </p>
+
+        {error && (
+          <div className="alert alert-danger mt-5">
+            <FiAlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <div>
+            <label htmlFor="displayName" className="field-label">
+              Name
+            </label>
+            <div className="relative">
+              <FiUser className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                id="displayName"
+                className="field pl-9"
+                placeholder="Your name"
+                value={displayName}
+                autoComplete="name"
+                onChange={(e) => setDisplayName(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="email" className="field-label">
+              Email
+            </label>
+            <div className="relative">
+              <FiMail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                type="email"
+                id="email"
+                className="field pl-9"
+                placeholder="name@example.com"
+                value={email}
+                autoComplete="email"
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="password" className="field-label">
+              Password
+            </label>
+            <div className="relative">
+              <FiLock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                className="field pl-9 pr-9"
+                placeholder="••••••••"
+                value={password}
+                autoComplete="new-password"
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 transition-colors hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 dark:hover:text-gray-200"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? (
+                  <FiEyeOff className="h-4 w-4" />
+                ) : (
+                  <FiEye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+            <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-500">
+              At least 6 characters.
             </p>
           </div>
 
-          {error && (
-            <div className="mb-4 flex items-center rounded-lg bg-red-50 p-4 text-sm text-red-800 dark:bg-red-900/30 dark:text-red-200">
-              <FiAlertCircle className="mr-2 h-5 w-5 flex-shrink-0" />
-              <span>{error}</span>
+          <div>
+            <label htmlFor="confirmPassword" className="field-label">
+              Confirm password
+            </label>
+            <div className="relative">
+              <FiLock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="confirmPassword"
+                className="field pl-9"
+                placeholder="••••••••"
+                value={confirmPassword}
+                autoComplete="new-password"
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
             </div>
-          )}
+          </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label
-                htmlFor="displayName"
-                className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-              >
-                Name
-              </label>
-              <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <FiUser className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  id="displayName"
-                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
-                  placeholder="Your name"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-            <div>
-              <label
-                htmlFor="email"
-                className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-              >
-                Email
-              </label>
-              <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <FiMail className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                </div>
-                <input
-                  type="email"
-                  id="email"
-                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-            <div>
-              <label
-                htmlFor="password"
-                className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-              >
-                Password
-              </label>
-              <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <FiLock className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                </div>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 pr-10 text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <FiEyeOff className="h-5 w-5" />
-                  ) : (
-                    <FiEye className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Must be at least 6 characters
-              </p>
-            </div>
-            <div>
-              <label
-                htmlFor="confirmPassword"
-                className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-              >
-                Confirm Password
-              </label>
-              <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <FiLock className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                </div>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="confirmPassword"
-                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-            <div className="flex items-start">
-              <div className="flex h-5 items-center">
-                <input
-                  id="terms"
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-gray-300 bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-primary-600"
-                  required
-                />
-              </div>
-              <label
-                htmlFor="terms"
-                className="ml-2 text-sm text-gray-600 dark:text-gray-300"
-              >
-                I agree to the{' '}
-                <a
-                  href="#"
-                  className="font-medium text-primary-600 hover:underline dark:text-primary-500"
-                >
-                  Terms of Service
-                </a>{' '}
-                and{' '}
-                <a
-                  href="#"
-                  className="font-medium text-primary-600 hover:underline dark:text-primary-500"
-                >
-                  Privacy Policy
-                </a>
-              </label>
-            </div>
-            <button
-              type="submit"
-              className="w-full rounded-lg bg-primary-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:bg-primary-500 dark:hover:bg-primary-600 dark:focus:ring-primary-800"
-              disabled={loading}
+          <div className="flex items-start gap-2.5">
+            <input
+              id="terms"
+              type="checkbox"
+              className="field-check mt-0.5"
+              required
+            />
+            <label
+              htmlFor="terms"
+              className="text-xs leading-relaxed text-gray-600 dark:text-gray-400"
             >
-              {loading ? 'Creating account...' : 'Create account'}
-            </button>
-            <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-              Already have an account?{' '}
-              <Link
-                to="/login"
-                className="font-medium text-primary-600 hover:underline dark:text-primary-500"
-              >
-                Sign in
-              </Link>
-            </p>
-          </form>
-        </div>
+              I agree to the Terms of Service and Privacy Policy.
+            </label>
+          </div>
+
+          <button type="submit" className="button w-full" disabled={loading}>
+            {loading ? 'Creating account...' : 'Create account'}
+          </button>
+        </form>
+
+        <p className="mt-6 border-t border-gray-200 pt-5 text-sm text-gray-600 dark:border-gray-800 dark:text-gray-400">
+          Already have an account?{' '}
+          <Link
+            to="/login"
+            className="font-medium text-primary-600 hover:underline dark:text-primary-400"
+          >
+            Sign in
+          </Link>
+        </p>
       </div>
     </>
   );
