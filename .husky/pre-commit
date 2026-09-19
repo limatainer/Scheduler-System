@@ -1,0 +1,4 @@
+set -e
+
+yarn biome:staged
+yarn lint
