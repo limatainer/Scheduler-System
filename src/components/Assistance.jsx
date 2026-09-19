@@ -71,9 +71,11 @@ export default function Assistance() {
   return (
     <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300">
       {/* Header */}
-      <div
-        className="px-6 py-4 bg-primary-600 dark:bg-primary-700 text-white cursor-pointer flex justify-between items-center"
+      <button
+        type="button"
+        className="w-full px-6 py-4 bg-primary-600 dark:bg-primary-700 text-white cursor-pointer flex justify-between items-center"
         onClick={() => setIsCollapsed(!isCollapsed)}
+        aria-expanded={!isCollapsed}
       >
         <div className="flex items-center gap-3">
           <FiHeadphones className="text-2xl" />
@@ -84,7 +86,7 @@ export default function Assistance() {
         ) : (
           <FiChevronUp className="text-xl" />
         )}
-      </div>
+      </button>
 
       {/* Content - Hidden when collapsed */}
       {!isCollapsed && (
@@ -295,9 +297,9 @@ export default function Assistance() {
               </h3>
 
               <div className="space-y-4">
-                {faqs.map((faq, index) => (
+                {faqs.map((faq) => (
                   <div
-                    key={index}
+                    key={faq.question}
                     className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
                   >
                     <h4 className="flex items-center text-base font-medium text-gray-900 dark:text-white mb-2">

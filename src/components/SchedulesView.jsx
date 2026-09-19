@@ -202,18 +202,18 @@ export default function SchedulesView({ schedules }) {
 
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                <span className="block text-sm font-medium text-gray-500 dark:text-gray-400">
                   Requester
-                </label>
+                </span>
                 <p className="text-lg font-semibold text-gray-900 dark:text-white">
                   {selectedSchedule.name}
                 </p>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                <span className="block text-sm font-medium text-gray-500 dark:text-gray-400">
                   Date & Time
-                </label>
+                </span>
                 <p className="text-lg text-gray-900 dark:text-white">
                   {scheduleDate(selectedSchedule).toLocaleString('en-US', {
                     weekday: 'long',
@@ -227,9 +227,9 @@ export default function SchedulesView({ schedules }) {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                <span className="block text-sm font-medium text-gray-500 dark:text-gray-400">
                   Status
-                </label>
+                </span>
                 <div className="mt-2">
                   {scheduleDate(selectedSchedule) < new Date() ? (
                     <div className="flex items-center">
@@ -277,18 +277,18 @@ export default function SchedulesView({ schedules }) {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                <span className="block text-sm font-medium text-gray-500 dark:text-gray-400">
                   Message
-                </label>
+                </span>
                 <p className="text-gray-700 dark:text-gray-300 mt-1 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                   {selectedSchedule.message}
                 </p>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                <span className="block text-sm font-medium text-gray-500 dark:text-gray-400">
                   Created
-                </label>
+                </span>
                 <p className="text-gray-700 dark:text-gray-300">
                   {new Date(
                     toMillis(selectedSchedule.createdAt),
