@@ -192,10 +192,12 @@ export default function Requester() {
 
     setIsSubmitting(true);
     setSubmitError(null);
+    let reserved = false;
 
     try {
       // Reserve the time first - see bookSlot for why the order matters.
       await bookSlot(selectedTime, user.uid);
+      reserved = true;
 
       await addDoc(collection(projectFirestore, 'schedule'), {
         uid: user.uid,
@@ -219,6 +221,13 @@ export default function Requester() {
       // Navigate to schedule list
       navigate('/schedule');
     } catch (error) {
+      if (!reserved && error.code === 'permission-denied') {
+        showError('That time was just booked. Please pick another.');
+        setSelectedTime(null);
+        setCurrentStep(2);
+        setBusySlots(await getBusySlots().catch(() => busySlots));
+        return;
+      }
       console.error('Error submitting request:', error);
       setSubmitError(error.message);
       showError('Something went wrong! Please try again.');
