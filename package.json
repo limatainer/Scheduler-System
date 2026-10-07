@@ -17,7 +17,7 @@
   "dependencies": {
     "@tailwindcss/forms": "^0.5.11",
     "firebase": "^12.19.0",
-    "framer-motion": "^13.4.0",
+    "framer-motion": "^14.0.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-icons": "^5.7.0",
