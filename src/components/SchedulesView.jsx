@@ -64,7 +64,7 @@ export default function SchedulesView({ schedules }) {
   };
 
   const toggleCompleted = async (schedule) => {
-    const completed = !schedule.completed;
+    const completed = !isDone(schedule);
 
     try {
       await updateDoc(doc(projectFirestore, 'schedule', schedule.id), {
@@ -137,12 +137,10 @@ export default function SchedulesView({ schedules }) {
                     onClick={() => toggleCompleted(schedule)}
                     className="button-ghost px-1.5"
                     title={
-                      schedule.completed
-                        ? 'Mark as pending'
-                        : 'Mark as completed'
+                      isDone(schedule) ? 'Mark as pending' : 'Mark as completed'
                     }
                   >
-                    {schedule.completed ? (
+                    {isDone(schedule) ? (
                       <FiToggleRight className="h-4 w-4 text-success-500" />
                     ) : (
                       <FiToggleLeft className="h-4 w-4 text-warning-500" />
@@ -203,14 +201,12 @@ export default function SchedulesView({ schedules }) {
                     onClick={() => toggleCompleted(selected)}
                     className="button-ghost"
                   >
-                    {selected.completed ? (
+                    {isDone(selected) ? (
                       <FiToggleRight className="h-4 w-4 text-success-500" />
                     ) : (
                       <FiToggleLeft className="h-4 w-4 text-warning-500" />
                     )}
-                    {selected.completed
-                      ? 'Mark as pending'
-                      : 'Mark as completed'}
+                    {isDone(selected) ? 'Mark as pending' : 'Mark as completed'}
                   </button>
                 ) : (
                   <span className="text-xs text-gray-500 dark:text-gray-400">

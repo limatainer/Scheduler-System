@@ -21,6 +21,8 @@ const toUser = (user) =>
 
 export const authReducer = (state, action) => {
   switch (action.type) {
+    case 'AUTH_IS_READY':
+      return { user: action.payload, authIsReady: true };
     case 'LOGIN':
       return { ...state, user: action.payload };
     case 'LOGOUT':
@@ -31,15 +33,19 @@ export const authReducer = (state, action) => {
 };
 
 export const AuthContextProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(authReducer, { user: null });
+  const [state, dispatch] = useReducer(authReducer, {
+    user: null,
+    authIsReady: false,
+  });
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(
       projectAuth,
-      (user) => dispatch({ type: 'LOGIN', payload: toUser(user) || null }),
+      (user) =>
+        dispatch({ type: 'AUTH_IS_READY', payload: toUser(user) || null }),
       (error) => {
         logError(error, { method: 'onAuthStateChanged' });
-        dispatch({ type: 'LOGOUT' });
+        dispatch({ type: 'AUTH_IS_READY', payload: null });
       },
     );
 
@@ -94,7 +100,7 @@ export const AuthContextProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ ...state, login, signup, logout }}>
-      {children}
+      {state.authIsReady && children}
     </AuthContext.Provider>
   );
 };

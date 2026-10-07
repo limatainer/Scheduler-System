@@ -12,7 +12,7 @@ export const useReviews = () => {
       collection(projectFirestore, 'reviews'),
       (snapshot) => {
         setReviews(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-        setError(snapshot.empty ? 'No reviews to load' : null);
+        setError(null);
         setIsPending(false);
       },
       (err) => {
