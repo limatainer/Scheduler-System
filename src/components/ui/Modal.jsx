@@ -5,10 +5,7 @@ export default function Modal({ title, onClose, children, size = 'max-w-lg' }) {
   const ref = useRef(null);
 
   useEffect(() => {
-    const dialog = ref.current;
-    dialog.showModal();
-
-    return () => dialog.close();
+    if (!ref.current.open) ref.current.showModal();
   }, []);
 
   return (
